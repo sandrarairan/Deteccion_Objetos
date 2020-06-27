@@ -117,7 +117,7 @@ def dibujar_labels(boxes, confs, colors, class_ids, classes, img):
 			        cv2.line(img, (int(center_x ), int(center_y )), (int(center_x1 ), int(center_y1 )),
 			        color, 1)
 
-	cv2.imshow("Salida", img)
+	#cv2.imshow("Salida", img)
 
 def imagen_detectada(img_path): 
 	model, classes, colors, output_layers = load_yolo()
@@ -150,17 +150,25 @@ def webcam_detectada():
 def iniciar_video(video_path):
 	model, classes, colors, output_layers = load_yolo()
 	cap = cv2.VideoCapture(video_path)
-	while True:
+	ancho = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+	alto = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    #Guardar el video como mkv
+	codec = cv2.VideoWriter_fourcc(*'X264')
+	grabador = cv2.VideoWriter('video.mkv', codec, 2, (ancho, alto))
+	while (cap.isOpened()):
 		_, frame = cap.read()
 		height, width, channels = frame.shape
 		blob, outputs = detect_objects(frame, model, output_layers)
 		boxes, confs, class_ids = obtener_cajas_dimensiones(outputs, height, width)
 		dibujar_labels(boxes, confs, colors, class_ids, classes, frame)
-		cv2.imwrite('videosocial.jpg',frame)
+		grabador.write(frame)
+		cv2.imshow('Nuestro video', frame)
+		cv2.imwrite('ImagenVideo.jpg',frame)
 		key = cv2.waitKey(27) #  presionar ESc para salir
 		if key == 27:
 			break
 	cap.release()
+	grabador.release()
 
 
 
